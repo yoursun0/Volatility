@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Stock Volatility Tracking Program</title>
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/site-demos.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="./js/jquery.validate.min.js"></script>
+	<script src="./js/additional-methods.min.js"></script>
+    <script src="./js/main.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth">
+    </script>
+  </head>
+
+  <body>
+    <h2>Stock Volatility Analysis Program</h2>
+	
+    <em>Copyright © 2015 by Clarence Chan. All Rights Reserved. </em><br><br>
+    <p><b>Disclaimer:</b> Information is provided "as is" and solely for informational purposes, and do not constitute as an offer. We shall not be responsible for any consequential effect, nor be liable for any direct, consequential, incidental, indirect loss or damage, howsoever caused, arising from the use of, inability to use or reliance upon any information or materials provided on this website. Data will be drawn from 2014-01-01 till 24 hours ago.</p>
+
+    <div id="authorize-div" class="hidden">
+      <span>Authorize database access by Google account</span>
+      <!--Button for the user to click to initiate auth sequence -->
+      <button id="authorize-button" class="button" onclick="handleAuthClick(event)">
+        Login
+      </button>
+    </div>
+    <hr />
+    <div>
+    	<form id="inputform" action="">
+    		<br>Target:<br>
+    		<input type="radio" id="type1" name="type" value="stock" checked>Stock
+		  	<input type="radio" id="type2" name="type" value="index">Index
+		  	<input type="radio" id="type3" name="type" value="stockIndex">Stock vs Index
+		  	<input type="radio" id="type4" name="type" value="allStock">All Stocks
+		  	<input type="radio" id="type5" name="type" value="allIndex">All Indexes
+		  	<br><br>
+  			<label for="ticker">Ticker: </label><br>
+  			<input type="text" id="ticker" class="left" name="ticker" value="">
+  			<br>
+  			<input type="text" id="stockName" class="hidden" name="stockName" size="40" disabled value="">
+  			<label id="errMsg" class="error hidden"> &nbsp; Please input the ticker! </label>
+  			<br>
+  			<div id="outIndex" class="hidden">
+  			<label for="ticker">Index: </label><br>
+  			<input type="text" id="index" name="index" disabled value="">
+  			<br>
+  			<input type="text" id="indexName" name="indexName" size="40" disabled value="">
+  			</div>
+  			<br>
+  			Date Range:
+  			<br>
+  			<label for="from-date">From: </label> 
+  			<input class="left" type="date" id="from-date" name="from-date" value="2014-01-01">
+  			<br>
+  			<label for="to-date">To: </label> 
+  			<input class="left" type="date" id="to-date" name="to-date" value="2016-01-01">
+  			
+  			<br><hr /><br>
+  			<p>Statistic Test Criteria:</p>
+  			<br>
+  			* Normal day means ALL trading days excluding Option Expiry Date, Ex–dividend date and Result announcement date.
+  			<br><br>
+  			<input type="checkbox" id="isWeekly" name="isWeekly" > Summary per week day
+  			<select disabled id="weekday" name="weekday">
+  				<option value="0">All Normal Days</option>
+  				<option value="1">Monday</option>
+  				<option value="2">Tuesday</option>
+  				<option value="3">Wednesday</option>
+  				<option value="4">Thursday</option>
+  				<option value="5">Friday</option>
+			</select>
+			<br>
+  			<input type="radio" id="compare1" name="compare" value="optionExpiry"> Option Expiry Date (against ALL normal days)
+			<br>
+			<input type="radio" id="compare2" name="compare" value="beforeExpiry" > 1 day before Option Expiry Date (against ALL normal days excluding 1 day before option expiry)
+			<br>
+  			<input type="radio" id="compare3" name="compare" value="dividend"> Ex–dividend date (against ALL normal days)
+			<br>
+			<input type="radio" id="compare4" name="compare" value="announcement"> Result announcement date (against ALL normal days)  			
+  			<br><br>
+  			<input id="submitBtn" class="button" type="button" onclick="checkResults()" value="Submit">
+  			<input id="resetBtn" class="button hidden" type="button" onclick="resetResults()" value="Reset">
+  			<!-- <input id="exportBtn" class="button hidden" type="button" value="Export" /> -->
+  			
+		</form>
+    </div>
+    
+    <p id="loading" class="hidden"> Loading data and calculating statistics... </p>
+    
+    <pre id="output"></pre>
+    <table id="table2excel" border="1" style="width: 100%">
+      	<tbody id="tableOut"></tbody>
+    </table>
+    <br>
+    <br>
+    <script src="./js/jquery-functions.js"></script>   
+    
+  </body>
+</html>

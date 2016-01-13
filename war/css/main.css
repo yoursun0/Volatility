@@ -1,0 +1,105 @@
+/**
+ * Copyright (C) 2013 Helic Leung
+ * Recruitment task for .NET Developer position
+ *
+ * Main CSS StyleSheet for the WebChart Application
+ */
+ 
+ @charset "utf-8";
+/* CSS Document */
+
+ /**
+   * ------------------------------------------------------------------
+   * Basic Settings
+   * ------------------------------------------------------------------
+   */
+
+body {
+	font-family: Helvetica, sans-serif, Courier,  Arial,  monospace;  
+	font-size: 14px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	background: #EEE url("./images/background_plain.png") no-repeat center center fixed;
+	-webkit-background-size: cover; /*for webKit*/
+	-moz-background-size: cover; /*Mozilla*/
+	-o-background-size: cover; /*opera*/
+	background-size: cover; /*generic*/
+}
+
+h1, h2, h3, h4, h5, h6 { font-weight:bold; margin: 0 0 2px 0; }
+h1 { font-size: 24px }
+h2 { font-size: 18px; margin-top: 6px }
+h3 { font-size: 14px; margin-top: 6px }
+p { font-size: 16px; margin-top: 8px }
+
+p.small { font-size: 12px; font-style: italic; margin-top: 8px }
+
+div.headers{
+  	padding: 10px 15px 10px 15px;
+}
+
+p {
+	line-height: 16px;
+	margin-top: 3px;
+	margin-bottom: 3px;
+	color: #666666;
+	padding: 0 20px 0 20px;
+}
+
+label {
+	float: left;
+	width: 50px;
+}
+
+label.error {
+	color: #FF0000;
+	width: 200px;
+}
+
+.button {
+    position: relative;
+    color: #fff;
+    border: none;
+    background: url('./images/btn_grey.png') no-repeat right bottom;
+    padding: 2px 8px;
+    text-decoration: none
+}
+
+.button:hover {
+    background: url('./images/btn_red.png') no-repeat right bottom;
+    text-decoration: none
+}
+
+.button:active {
+    top : 1px;
+    text-decoration: none
+}
+
+.toggle{
+  	width: 150px;
+}
+
+.search-panel{
+	width: 500px;
+	background: url("./images/search_box.png") no-repeat bottom center;
+} 
+
+.search-box{
+	margin: 2px 8px 3px 12px ;
+	padding: 0px 0px 0px 22px;
+	width: 120px;
+	border : 0px;
+	background: transparent;
+} 
+
+.left{
+	float:left;
+}
+
+.hidden{
+	display:none;
+}
+
+table {
+    border-collapse: collapse;
+}
