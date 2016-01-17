@@ -7,11 +7,12 @@
       var SCOPES = ['https://www.googleapis.com/auth/drive'];
       
       // var scriptId = "MG0P6G0prTP2XRWwRhS-RT9BRF831uWHK";
-      var scriptId = "MqOcLUEybS_l88Gl4gixlSNBRF831uWHK";
-
+      // var scriptId = "MqOcLUEybS_l88Gl4gixlSNBRF831uWHK";
+      var scriptId = "MNowVcXas2-uYhjOzDCcmiqVy5KxECbym";
       var tickerList;
+      var bigTable;
       var timeout = 10000;
-      var validating = 2;
+      var validating = 0;
 
       /**
        * Check if current user has authorized this application.
@@ -245,13 +246,13 @@
                     };
         }else if (type == 'allStock'){
         	request = {
-                    'function': 'writeAllStock',
-                    'parameters': [num,fromDate,toDate]
+                    'function': 'getAllStock',
+                    'parameters': []
                     };
         }else if (type == 'allIndex'){
         	request = {
-                    'function': 'writeAllIndex',
-                    'parameters': [num,fromDate,toDate]
+                    'function': 'getAllIndex',
+                    'parameters': []
                     };
         }else{
         	request = {
@@ -275,7 +276,7 @@
       		  //  appendPre(JSON.stringify(resp, null, 2));
       		    setTimeout(function() { callScriptFunction(type,ticker,fromDate,toDate,num); },timeout);
         	  }else if (resp.error.code == '401'){
-        		  appendPre('Session timeout. Re-handle authentication.');
+        		  appendPre('Session timeout. Please refresh the browser and retry.');
         		  checkAuth();
               }else{
               	appendPre('Network error occurs! Please capture the screen, refresh the browser and retry.');
@@ -298,14 +299,104 @@
         		  $('#outIndex').toggleClass('hidden');
         		  setTimeout(function() { getScriptOutput(type,num); },timeout);
         	  }else if ((type == 'allStock')||(type == 'allIndex')){
-        		  appendPre("Total number of tickers: "+output);
-        		  validateOutput(validating,type,output,num);
+        		  var total = output.length;
+        		  tickerList = output;
+        		  bigTable = new Array();
+        		  appendPre("Total number of tickers: "+total);
+        		  
+        		  var tbdy = document.getElementById('tableOut');
+              	  var tr = document.createElement('tr');
+                  appendTd(tr,"No.");
+                  appendTd(tr,"Ticker");
+                  appendTd(tr,"Mean");
+                  appendTd(tr,"Median");
+                  appendTd(tr,"Standard deviation");
+                  appendTd(tr,"Variance");
+                  appendTd(tr,"Occurrences");
+                  appendTd(tr,"Comparison Base");
+                  appendTd(tr,"Test statistics");
+                  appendTd(tr,"p-value");
+                  appendTd(tr,"Result");
+                  
+                  tbdy.appendChild(tr);
+        		  gettingOutput(type,fromDate,toDate,num+1,0,total);
         	  }        	  
           }
           
         });
       }
       
+
+      /**
+       * Calls get all stock details
+       */
+      function gettingOutput(type,fromDate,toDate,num,count,total) {
+        
+      if (count == total){
+      	$('#loading').toggleClass('hidden');
+        $('#resetBtn').toggleClass('hidden');
+        $('#exportBtn').toggleClass('hidden');
+      }else{
+    	var request = {};
+        var ticker = tickerList[count];
+  	    //appendPre('ticker = '+ticker+',count='+count+',num='+num);        
+        if (type == 'allIndex'){
+          	request = {
+                      'function': 'getIndexVolatility',
+                      'parameters': [ticker,fromDate,toDate,num]
+                      };
+          }else if (type == 'allStock'){
+          	request = {
+                      'function': 'getStockVolatility',
+                      'parameters': [ticker,fromDate,toDate,num]
+                      };
+          }
+        // Make the API request.
+        var op = gapi.client.request({
+            'root': 'https://script.googleapis.com',
+            'path': 'v1/scripts/' + scriptId + ':run',
+            'method': 'POST',
+            'body': request
+        });
+        
+        op.execute(function(resp) {
+          
+        	if (resp.error) {
+        		 if ((resp.error.code == '3')||(resp.error.code == '-1')||(resp.error.code == '409')||(resp.error.code == '504')){
+           		  //  appendPre('Retry!! validateOutput, type='+type+',num = '+num+', error code ='+resp.error.code);
+           		  //  appendPre(JSON.stringify(resp, null, 2));
+           		    setTimeout(function() { gettingOutput(type,fromDate,toDate,num,count,total); },timeout);
+        		  }else if (resp.error.code == '401'){
+           		    appendPre('Session timeout. Please refresh the browser and retry.');
+           		    checkAuth();
+             	  }else{
+             		appendPre('Network error occurs! Please capture the screen, refresh the browser and retry.');
+                   	appendPre('gettingOutput (line:356), type='+type+',count = '+count+', error code ='+resp.error.code);
+                 	appendPre(JSON.stringify(resp, null, 2));
+                 	$('#resetBtn').removeClass('hidden');
+             	  }
+              } else {
+                    var tbdy = document.getElementById('tableOut');
+          		    var tr = document.createElement('tr');
+          		    appendTd(tr,count+1);
+        		    appendTd(tr,ticker);
+          		    for (var j = 1; j < 10; j++) {
+            	      if (((j==1)||(j==2)||(j==3)||(j==4)||(j==8)) &&(resp.response.result[0][j]!='N/A')){
+          				  appendTd(tr,Math.round(resp.response.result[0][j]*100000)/1000+'%');
+          			  }else if ((j==7)&&(resp.response.result[0][j]!='N/A')){
+          				  appendTd(tr,Math.round(resp.response.result[0][j]*1000)/1000);
+          			  }else{
+          				  appendTd(tr,resp.response.result[0][j]);
+          			  }
+
+          		    }
+          		    tbdy.appendChild(tr);
+                    gettingOutput(type,fromDate,toDate,num,count+1,total);
+            	  
+              }
+        });
+       }
+      }
       
 
       
@@ -348,7 +439,7 @@
            		  //  appendPre(JSON.stringify(resp, null, 2));
            		    setTimeout(function() { validateOutput(round,type,count,num); },timeout);
         		  }else if (resp.error.code == '401'){
-           		    appendPre('Session timeout. Re-handle authentication.');
+           		    appendPre('Session timeout. Please refresh the browser and retry.');
            		    checkAuth();
              	  }else{
              		appendPre('Network error occurs! Please capture the screen, refresh the browser and retry.');
@@ -393,7 +484,7 @@
            		//    appendPre(JSON.stringify(resp, null, 2));
            		    setTimeout(function() { getScriptOutput(type,num); },timeout);
         		  }else if (resp.error.code == '401'){
-           		    appendPre('Session timeout. Re-handle authentication.');
+           		    appendPre('Session timeout. Please refresh the browser and retry.');
            		    checkAuth();
              	  }else{
              		appendPre('Network error occurs! Please capture the screen, refresh the browser and retry.');
@@ -406,41 +497,6 @@
             if (Object.keys(rowSet).length == 0) {
                 appendPre('No results returned! Please validate your inputs and retry.');
                 $('#resetBtn').removeClass('hidden');
-            }else if((type == 'allStock')||(type == 'allIndex')){
-            	
-            	clearPre();
-            	$('#loading').toggleClass('hidden');
-            	appendPre("Total number of tickers: "+num);
-            	
-            	var tbdy = document.getElementById('tableOut');
-            	var tr = document.createElement('tr');
-                appendTd(tr,"No.");
-                appendTd(tr,"Ticker");
-                appendTd(tr,"Average");
-                appendTd(tr,"Standard deviation");
-                appendTd(tr,"Variance");
-                appendTd(tr,"Occurrences");
-                appendTd(tr,"Comparison Base");
-                appendTd(tr,"Test statistics");
-                appendTd(tr,"p-value");
-                appendTd(tr,"Result");
-                tbdy.appendChild(tr);
-            	
-                for (var i = 1; i < num+1; i++) {
-          		  var tr = document.createElement('tr');
-          		  for (var j = 0; j < 10; j++) {
-          			  if (((j==2)||(j==3)||(j==4)||(j==8)) &&(rowSet[i][j]!='N/A')){
-          				  appendTd(tr,Math.round(rowSet[i][j]*100000)/1000+'%');
-          			  }else if ((j==7)&&(rowSet[i][j]!='N/A')){
-          				  appendTd(tr,Math.round(rowSet[i][j]*1000)/1000);
-          			  }else{
-          				  appendTd(tr,rowSet[i][j]);
-          			  }
-
-          		  }
-          		  tbdy.appendChild(tr);
-          	  	}
-            	
             }else{
             	
                 	  clearPre();
@@ -451,10 +507,10 @@
               
                 	  for (var i = 0; i < 2; i++) {
                 		  var tr = document.createElement('tr');
-                		  for (var j = 1; j < 9; j++) {
-                			  if ((((j==1)||(j==2)||(j==3)||(j==7))&&(i==1)) &&(rowSet[i][j]!='N/A')){
+                		  for (var j = 1; j < 10; j++) {
+                			  if ((((j==1)||(j==2)||(j==3)||(j==4)||(j==8))&&(i==1)) &&(rowSet[i][j]!='N/A')){
                 				  appendTd(tr,Math.round(rowSet[i][j]*100000)/1000+'%');
-                			  }else if ((j==6)&&(i==1)&&(rowSet[i][j]!='N/A')){
+                			  }else if ((j==7)&&(i==1)&&(rowSet[i][j]!='N/A')){
                 				  appendTd(tr,Math.round(rowSet[i][j]*1000)/1000);
                 			  }else{
                 				  appendTd(tr,rowSet[i][j]);
