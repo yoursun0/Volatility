@@ -367,8 +367,9 @@
            		  //  appendPre(JSON.stringify(resp, null, 2));
            		    setTimeout(function() { gettingOutput(type,fromDate,toDate,num,count,total); },timeout);
         		  }else if (resp.error.code == '401'){
-           		    appendPre('Session timeout. Please refresh the browser and retry.');
+           		    // appendPre('Session timeout. Please refresh the browser and retry.');
            		    checkAuth();
+           		    setTimeout(function() { gettingOutput(type,fromDate,toDate,num,count,total); },timeout);
              	  }else{
              		appendPre('Network error occurs! Please capture the screen, refresh the browser and retry.');
                    	appendPre('gettingOutput (line:356), type='+type+',count = '+count+', error code ='+resp.error.code);
